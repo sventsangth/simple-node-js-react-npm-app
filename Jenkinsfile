@@ -27,14 +27,9 @@ pipeline {
         }
         stage('Push') {
             steps {
-                sh 'docker push ho19960910/sven-alpine:latest'
+                sh 'docker push ho19960910/jenkins:latest'
             }
         }
 
-    }
-    post {
-        always {
-            sh 'docker logout'
-        }
     }
 }
