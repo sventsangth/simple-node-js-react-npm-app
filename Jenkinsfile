@@ -1,4 +1,8 @@
 pipeline {
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('ho19960910-dockerhub')
+    }
+
     agent {
         docker {
             image 'node:lts-buster-slim'
@@ -16,12 +20,21 @@ pipeline {
                 sh './jenkins/scripts/test.sh'
             }
         }
-        stage('Deliver') { 
+        stage('Login') {
             steps {
-                sh './jenkins/scripts/deliver.sh' 
-                input message: 'Finished using the web site? (Click "Proceed" to continue)' 
-                sh './jenkins/scripts/kill.sh' 
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
+        }
+        stage('Push') {
+            steps {
+                sh 'docker push ho19960910/sven-alpine:latest'
+            }
+        }
+
+    }
+    post {
+        always {
+            sh 'docker logout'
         }
     }
 }
